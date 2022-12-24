@@ -1,3 +1,4 @@
+import sys
 from time import time
 from bs4 import BeautifulSoup
 from splinter import Browser
@@ -103,9 +104,10 @@ class Document_Summary():
             self.words.append((word, len(list(group))))
         self.unique_word_count = len(list(self.words))
 
-    def load_document(self):
+    def load_document(self) -> float:
         self.end_time = time()
         add_or_update_doc(self)
+        return self.end_time - self.start_time
 
     def load_words(self):
         for (word, term_count) in self.words:
@@ -148,10 +150,21 @@ def scrape_page_html(html:str, url:str, start_time:float):
     soup = BeautifulSoup(html, 'html5lib')
     name = soup.find('title').text.replace(' - Wikipedia', '')
     paragraphs = [p.text for p in soup.find('div', attrs={'id': 'bodyContent'}).find_all('p')]
-    try:
-        latitude = float(soup.find('span', attrs={'class': 'geo-dec'}).text.split()[0].strip('°NS'))
-        longitude = float(soup.find('span', attrs={'class': 'geo-dec'}).text.split()[1].strip('°EW'))
-    except:
+    if (parent_span := soup.find('span', attrs={'id': 'coordinates'})) == None:
+        latitude = None
+        longitude = None
+    elif (location := parent_span.find('span', attrs={'class': 'geo-dec'})): # location = <span class="latlon">##.##°N(S) ###.##°E(W)</span>
+        lat_text = location.text.split()[0].split('°')
+        latitude = float(lat_text[0])*(-1 if lat_text[1]=='S' else 1)
+        lon_text = location.text.split()[1].split('°')
+        longitude = float(lon_text[0])*(-1 if lon_text[1]=='W' else 1)
+    elif (location := parent_span.find('span', attrs={'class': 'geo-dms'})): # location.html = <span class="latitude">##°##'##"N(S)</span><span class="longitude">###°##'##"E(W)<span>
+        lat_text = location.find('span', attrs={'class':'latitude'}).text.split('°\'"')
+        latitude = (float(lat_text[0])+float(lat_text[1])/60+float(lat_text[2])/3600)*(-1 if lat_text[3]=='S' else 1)
+        lon_text = location.find('span', attrs={'class':'longitude'}).text.split('°\'"')
+        longitude = (float(lon_text[0])+float(lon_text[1])/60+float(lon_text[2])/3600)*(-1 if lon_text[3]=='W' else 1)
+    else:
+        print(f'New location format @ {url}')
         latitude = None
         longitude = None
     return Document_Summary(name, paragraphs, latitude, longitude, url, start_time)
@@ -161,11 +174,29 @@ def create_random_document():
     html, url = get_random_page_html()
     document_summary = scrape_page_html(html, url, start_time)
     document_summary.load_words()
-    document_summary.load_document()
+    return document_summary.load_document()
+
+def get_data():
+    data = {}
+    with Session(engine) as session:
+        data['words'] = [{'word': word.word, 'total_count': word.total_count} for word in session.query(Word).all()]
+        data['total_words_count'] = sum(word.total_count for word in session.query(Word).all())
+        data['unique_words_count'] = len([word for word in session.query(Word).all()])
+        data['documents'] = [{'name': document.name, 'paragraphs_count': document.paragraphs_count, 'unique_word_count': document.unique_word_count, 'total_word_count': document.total_word_count, 'latitude': document.latitude, 'longitude': document.longitude, 'scrape_time': document.scrape_time, 'scrape_count': document.scrape_count} for document in session.query(Document).all()]
+        data['documents_with_location'] = [{'name': document.name, 'paragraphs_count': document.paragraphs_count, 'unique_word_count': document.unique_word_count, 'total_word_count': document.total_word_count, 'latitude': document.latitude, 'longitude': document.longitude, 'scrape_time': document.scrape_time, 'scrape_count': document.scrape_count} for document in session.query(Document).filter(Document.latitude != None).all()]
+        data['documents_count'] = len([document for document in session.query(Document).all()])
+        data['total_scrape_time'] = sum(document.scrape_time for document in session.query(Document).all())
+    return data
 
 if __name__ == '__main__':
-    create_random_document()
-    with Session(engine) as s:
-        s.query(Document).all()[-1].print_out()
-        print(f'50th word\'s total count: {s.query(Word).all()[50].total_count}')
-        print([(word.word, word.total_count) for word in s.query(Word).order_by(Word.total_count).all()])
+    if sys.argv[1] == '--N':
+        scrape_time = 0
+        for index in range(int(sys.argv[2])):
+            scrape_time += create_random_document()
+            print(index)
+        with Session(engine) as s:
+            print(f'Scraped {sys.argv[2]} documents in {scrape_time} seconds.')
+    else:
+        create_random_document()
+        with Session(engine) as s:
+            s.query(Document).all()[-1].print_out()

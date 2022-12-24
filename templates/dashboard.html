@@ -4,9 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scrape Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/static/assets/measuring-device.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <link rel="stylesheet" href="/static/css/styles.css">
   </head>
   <body>
-	<script src="/static/js/dashboard.js"></script>
+    <div style="position: relative;">
+      <div class="card" id="wordHistCard">
+          <div id="wordHist"></div>
+      </div>
+      <div class="card" id="wordsPerParagraphCard">
+        <div id="wordsPerParagraph"></div>
+      </div>
+      <div class="card" id="scrapeRateCard">
+        <div id="scrapeRate"></div>
+      </div>
+      <div class="card" id="documentMapCard">
+        <div id="documentMap"></div>
+      </div>
+      <div>
+        <footer>
+          <p>Author: Hege Refsnes</p>
+          <p><a href="mailto:hege@example.com">hege@example.com</a></p>
+        </footer>
+      </div>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <script src="/static//js/leaflet-heat.js"></script>
+	  <script src="/static/js/dashboard.js"></script>
   </body>
 </html>

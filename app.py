@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
+from scrape import get_data
 
 app = Flask(__name__)
 
@@ -6,7 +7,7 @@ app = Flask(__name__)
 def scrape_action():
     pass
 
-@app.route('/about')
+@app.route('/')
 def about_page():
     return render_template('about.html')
 
@@ -14,5 +15,9 @@ def about_page():
 def dashboard_page():
     return render_template('dashboard.html')
 
+@app.route('/api/data')
+def data_call():
+    return jsonify(get_data())
+
 if __name__ == '__main__':
-    app.run
+    app.run(debug=True)

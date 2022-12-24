@@ -1,0 +1,17 @@
+body, html {height: 100%;}
+
+div.card {border-radius: 10px; border: 1px solid; padding: 10%;}
+
+footer {position: absolute; bottom: 100%;}
+
+#wordHistCard {position: absolute;}
+
+#wordHist {padding: 10%;}
+
+#wordsPerParagraphCard {position: absolute; left: 500px}
+
+#scrapeRateCard {position: absolute; top: 500px;}
+
+#documentMapCard {position: absolute; left: 500px; top: 500px;}
+
+#documentMap {height: 500px; width: 500px;}

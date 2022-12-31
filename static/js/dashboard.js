@@ -1,19 +1,6 @@
 d3.json('/api/data').then(data => dashboard(data));
-// css();
 
-function css() {
-
-  let element = d3.select('html').node();
-  
-  let width = element.getBoundingClientRect().width;
-
-  let styles = getComputedStyle(document.querySelector(':root'));
-
-  styles.setProperty('--width', width)
-
-  console.log(styles.getPropertyValue('--width'))
-
-};
+let DIM = 450
 
 function dashboard(data) {
 
@@ -30,8 +17,8 @@ function dashboard(data) {
 
   let wordhistLayout = {
     title: 'Distribution of Word Frequencies',
-    height: 500,
-    width: 500,
+    height: DIM,
+    width: DIM,
     xaxis: {
       range: [0, .002],
       title: 'Word Frequency'
@@ -60,8 +47,8 @@ function dashboard(data) {
 
   let wordsPerParagraghLayout = {
     title: 'Words Per Paragragh',
-    height: 500,
-    width: 500,
+    height: DIM,
+    width: DIM,
     xaxis: {title: 'Number of Paragraghs in  Document'},
     yaxis: {title: 'Total Number of Words in Document'}
   };
@@ -86,8 +73,8 @@ function dashboard(data) {
     title: {
       text: "Srape Rate (Documents/Minute)"
     },
-    width: 500,
-    height: 500
+    width: DIM,
+    height: DIM
   };
 
   Plotly.newPlot('scrapeRate', [scrapeRate], scrapeRatelayout);

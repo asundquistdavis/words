@@ -4,11 +4,7 @@ let DIM = 450
 
 function dashboard(data) {
 
-  console.log(data);
-
   let total_words_frequencies = data.words.map(word => word['total_count']/data.total_words_count);
-
-  console.log(total_words_frequencies);
 
   let wordhist = {
     x: total_words_frequencies,
@@ -35,14 +31,15 @@ function dashboard(data) {
 
   let total_paragraphs_counts_by_document = data.documents.map(document => document['paragraphs_count']);
 
-  console.log(total_words_counts_by_document);
-  console.log(total_paragraphs_counts_by_document);
+  let wordsPerParagraphHT = data.documents.map(document => document['name']);
 
   let wordsPerParagragh = {
     type: 'scatter',
     mode: 'markers',
     x: total_paragraphs_counts_by_document,
     y: total_words_counts_by_document,
+    text: wordsPerParagraphHT,
+    hovertemplate: '<b>%{text}</b><br>Words: %{y}<br>Paragraphs: %{x}<extra></extra>'
   };
 
   let wordsPerParagraghLayout = {
@@ -54,6 +51,7 @@ function dashboard(data) {
   };
 
   Plotly.newPlot('wordsPerParagraph', [wordsPerParagragh], wordsPerParagraghLayout);
+
 
   let average_scrape_rate = data.documents_count/data.total_scrape_time*60;
 

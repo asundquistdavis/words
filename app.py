@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from scrape import get_data
+from data import get_data
 
 app = Flask(__name__)
 

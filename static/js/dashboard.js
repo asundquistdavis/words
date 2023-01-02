@@ -1,11 +1,11 @@
-d3.json('/api/data').then(data => dashboard(data));
-
+// const used to control width of cards
 let DIM = 450
 
-function dashboard(data) {
-
+// 
+function drawWordHist(data) {
+  // array containing word frequencies (total # word apears across all documents / total number of words across all documents)
   let total_words_frequencies = data.words.map(word => word['total_count']/data.total_words_count);
-
+  // 
   let wordhist = {
     x: total_words_frequencies,
     type: 'histogram'
@@ -26,11 +26,11 @@ function dashboard(data) {
   };
 
   Plotly.newPlot('wordHist', [wordhist], wordhistLayout);
+};
 
+function drawWordsPerParagragh(data) {
   let total_words_counts_by_document = data.documents.map(document => document['total_word_count']);
-
   let total_paragraphs_counts_by_document = data.documents.map(document => document['paragraphs_count']);
-
   let wordsPerParagraphHT = data.documents.map(document => document['name']);
 
   let wordsPerParagragh = {
@@ -51,8 +51,35 @@ function dashboard(data) {
   };
 
   Plotly.newPlot('wordsPerParagraph', [wordsPerParagragh], wordsPerParagraghLayout);
+};
 
+function drawVowelFrequency(data) {
 
+  let vowels = data.words.map(word=>word.vowel_count);
+  let letters = data.words.map(word=>word.letter_count);
+  let words = data.words.map(word=>word.word);
+
+  let vowelFrequency = {
+    type: 'scatter',
+    mode: 'markers',
+    x: vowels,
+    y: letters,
+    text: words,
+    hovertemplate: '<b>%{text}</b><br>Letters: %{y}<br>Vowels: %{x}<extra></extra>'
+  };
+
+  let vowelFrequencyLayout = {
+    title: 'Vowels vs Letters',
+    height: DIM,
+    width: DIM,
+    xaxis: {title: 'Number of Vowels in Word'},
+    yaxis: {title: 'Number of Letters in Word'}
+  };
+
+  Plotly.newPlot('vowelFrequency', [vowelFrequency], vowelFrequencyLayout);
+};
+
+function drawScrapeRate(data) {
   let average_scrape_rate = data.documents_count/data.total_scrape_time*60;
 
   let scrapeRate = {
@@ -76,9 +103,10 @@ function dashboard(data) {
   };
 
   Plotly.newPlot('scrapeRate', [scrapeRate], scrapeRatelayout);
+};
 
+function drawDocumnentMap(data) {
   let locations = data.documents_with_location.map(document => [document.latitude, document.longitude, 1]);
-  // let locations = random_locs(1000)
 
   documentMap = L.map('documentMap').setView([0, 0], 1);
 
@@ -93,13 +121,17 @@ function dashboard(data) {
     blur: 25,
     gradient: {0.4: 'blue', 1: 'red'}
   }).addTo(documentMap);
+};
+
+async function dashboard() {
+
+  let data = await d3.json('/api/data');
+  drawWordHist(data);
+  drawWordsPerParagragh(data);
+  drawVowelFrequency(data);
+  drawScrapeRate(data);
+  drawDocumnentMap(data);
 
 };
 
-function random_locs(n) {
-  let locs = [];
-  for (i = 0; i < n; i ++) {
-    locs.push([Math.random()*180-90, Math.random()*360-180]);
-  };
-  return locs;
-}
+dashboard();

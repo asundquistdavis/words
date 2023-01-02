@@ -6,7 +6,9 @@ footer {position: absolute; bottom: 100%;}
 
 #wordHistCard {position: absolute;}
 
-#wordsPerParagraphCard {position: absolute; left: 500px}
+#wordsPerParagraphCard {position: absolute; left: 500px;}
+
+#vowelFrequencyCard {position: absolute; left: 1000px;}
 
 #scrapeRateCard {position: absolute; top: 500px;}
 
